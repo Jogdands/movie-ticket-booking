@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ticket</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #111;
+      color: white;
+      text-align: center;
+    }
+
+    .ticket {
+      background: #222;
+      padding: 20px;
+      width: 50%;
+      margin: auto;
+      border-radius: 12px;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🎟 Your Ticket</h1>
+
+<div class="ticket" id="ticket"></div>
+
+<script>
+const data = JSON.parse(localStorage.getItem("booking"));
+
+if (data) {
+  document.getElementById("ticket").innerHTML = `
+    <h2>${data.movie}</h2>
+    <p><b>Seats:</b> ${data.seats}</p>
+    <p><b>Date:</b> ${data.date}</p>
+    <p><b>Time:</b> ${data.time}</p>
+    <h3>✅ Booking Confirmed</h3>
+  `;
+} else {
+  document.getElementById("ticket").innerHTML = "No booking found";
+}
+</script>
+
+</body>
+</html>

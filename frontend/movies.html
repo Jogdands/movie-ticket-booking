@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Movies</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at center, #2E003E 0%, #000000 80%);
+  color: white;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background: rgba(0,0,0,0.9);
+}
+
+header a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Genre button */
+.genre-btn {
+  padding: 12px 25px;
+  font-size: 16px;
+  font-weight: bold;
+  background: #ff4d6d;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  color: white;
+  transition: 0.3s;
+  position: relative;
+}
+
+.genre-btn:hover {
+  background: #ff1e4d;
+  box-shadow: 0 0 15px #ff4d6d;
+}
+
+/* Dropdown menu */
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 50px;
+  left: 0;
+  background: rgba(0,0,0,0.9);
+  border-radius: 10px;
+  min-width: 150px;
+  z-index: 10;
+  flex-direction: column;
+}
+
+.dropdown button {
+  background: transparent;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.dropdown button:hover {
+  background: rgba(255,77,109,0.3);
+}
+
+/* Movies Grid */
+section {
+  padding: 40px 30px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.card {
+  background: rgba(0,0,0,0.6);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 0 20px rgba(255,77,109,0.7);
+}
+
+.card img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+.card p {
+  text-align: center;
+  padding: 10px;
+}
+
+/* ✅ FIXED BOOK BUTTON */
+.book-btn {
+  margin: 10px auto 15px;
+  display: block;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 25px;
+  background: linear-gradient(45deg, #ff4d6d, #ff1e4d);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.book-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255,77,109,0.7);
+}
+
+/* Loading */
+#loading {
+  text-align: center;
+  padding: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a href="index.html">⬅ Back to Home</a>
+</header>
+
+<section>
+  <h2>All Movies</h2>
+
+  <!-- Genre Button -->
+  <div style="position: relative; margin-bottom: 30px;">
+    <button class="genre-btn" id="genreBtn">Genre ▼</button>
+    <div class="dropdown" id="genreDropdown">
+      <button data-genre="all">All</button>
+      <button data-genre="action">Action</button>
+      <button data-genre="thriller">Thriller</button>
+      <button data-genre="sci-fi">Sci-Fi</button>
+      <button data-genre="comedy">Comedy</button>
+      <button data-genre="romance">Romance</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div id="loading">Loading movies...</div>
+
+  <!-- Movies Grid -->
+  <div class="grid" id="moviesContainer"></div>
+</section>
+
+<script>
+
+const fallbackMovies = [
+  { title: "HIT3", genre: "thriller", img: "https://i.pinimg.com/736x/ad/36/07/ad36079d99a898a53ac7351d5200b449.jpg", price: 200 },
+  { title: "LOKAH", genre: "action", img: "https://i.pinimg.com/1200x/90/2a/10/902a10f21e81422cc6d4abbf3e6a48eb.jpg", price: 200 },
+  { title: "KILL", genre: "action", img: "https://i.pinimg.com/736x/01/5b/a0/015ba090706c8ba56ef01981698e19e7.jpg", price: 200 },
+  { title: "URI", genre: "action", img: "https://i.pinimg.com/736x/71/f5/a6/71f5a6aaf45e3ef0c490c12ccbe82444.jpg", price: 200 },
+  { title: "JURASSIC WORLD", genre: "sci-fi", img: "https://i.pinimg.com/736x/fc/7e/15/fc7e150c48a062e1863d5304ac3ae90a.jpg", price: 250 },
+  { title: "GOAT", genre: "comedy", img: "https://i.pinimg.com/736x/b0/fa/a2/b0faa2e1f9e9e690797a299f605636b0.jpg", price: 180},
+   { title: "GANDHI TALKS", genre: "comedy", img: "https://i.pinimg.com/736x/cf/e4/41/cfe441cb714897efcfe97eaaca11113b.jpg", price: 180},
+  { title: "DHOOM DHAM", genre: "comedy", img: "https://i.pinimg.com/736x/93/ca/bc/93cabc5e11e0720f943d62aa917a04c5.jpg", price: 180 },
+  { title: "ROMEO", genre: "romance", img: "https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/o-romeo-et00481091-1772498394.jpg", price: 150 },
+  { title: "MAYA", genre: "thriller", img: "https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/maya-et00482512-1768894537.jpg", price: 200 },
+  { title: "KALKI", genre: "sci-fi", img: "https://tse3.mm.bing.net/th/id/OIP.nh90g_MVo8t8ZZ3zhtl3rwAAAA?w=279&h=337", price: 250 },
+   { title: "DEVDAS", genre: "romance", img: "https://i.pinimg.com/736x/d8/c7/78/d8c7788bdacf55793a5366ba85f6b921.jpg" },
+{ title: "1917", genre: "action", img: "https://i.pinimg.com/736x/1c/73/83/1c7383afce5c407c8e648d2e26f6932e.jpg" }
+];
+
+let originalMovies = [];
+
+const container = document.getElementById("moviesContainer");
+const loading = document.getElementById("loading");
+
+async function fetchMovies() {
+  try {
+    const res = await fetch("http://localhost:5000/api/movies");
+    const data = await res.json();
+
+    console.log("DB DATA:", data);
+
+    // 🔥 convert DB movies properly
+    const dbMovies = (data || []).map(m => ({
+      title: m.title || m.name,
+      genre: m.genre || "action",
+      img: m.image,
+      price: m.price || 200
+    }));
+
+    // 🔥 MERGE BOTH (THIS IS MAIN FIX)
+    originalMovies = [...fallbackMovies, ...dbMovies];
+
+    // 🔥 remove duplicates
+    originalMovies = originalMovies.filter(
+      (movie, index, self) =>
+        index === self.findIndex(m => m.title === movie.title)
+    );
+
+    displayMovies();
+
+    localStorage.setItem("movies_cache", JSON.stringify(originalMovies));
+
+  } catch (err) {
+    console.log("DB not working → fallback only");
+
+    originalMovies = fallbackMovies;
+    displayMovies();
+  }
+
+  loading.style.display = "none";
+}
+
+/* DISPLAY */
+function displayMovies(filter) {
+  container.innerHTML = "";
+
+  let filtered = (!filter || filter === "all")
+    ? originalMovies
+    : originalMovies.filter(m => m.genre === filter);
+
+  filtered.forEach(movie => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <img src="${movie.img}">
+      <p>${movie.title}</p>
+      <button class="book-btn">Book Now</button>
+    `;
+
+    card.querySelector(".book-btn").onclick = () => {
+      localStorage.setItem("movie", movie.title);
+      localStorage.setItem("price", movie.price);
+      window.location.href = "datetime.html";
+    };
+
+    container.appendChild(card);
+  });
+}
+const genreBtn = document.getElementById("genreBtn");
+const dropdown = document.getElementById("genreDropdown");
+
+// toggle dropdown
+genreBtn.onclick = () => {
+  dropdown.style.display =
+    dropdown.style.display === "flex" ? "none" : "flex";
+};
+
+// genre buttons click
+document.querySelectorAll("#genreDropdown button").forEach(btn => {
+  btn.onclick = () => {
+    const genre = btn.getAttribute("data-genre");
+    displayMovies(genre);
+    dropdown.style.display = "none";
+  };
+});
+window.onload = fetchMovies;
+
+</script>
+</body>
+</html>

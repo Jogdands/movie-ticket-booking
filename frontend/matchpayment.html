@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Match Payment</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background: radial-gradient(circle at center, #1a1a2e, #000);
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.container{
+  background:rgba(255,255,255,0.08);
+  padding:30px;
+  border-radius:12px;
+  width:300px;
+  text-align:center;
+  box-shadow:0 0 15px rgba(255,77,109,0.5);
+}
+
+h2{
+  margin-bottom:20px;
+}
+
+input, select{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:6px;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  background:#ff4d6d;
+  color:white;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+button:hover{
+  background:#ff1f4b;
+}
+
+.info{
+  margin-bottom:15px;
+  font-size:14px;
+  color:#ddd;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Match Payment</h2>
+
+<div class="info" id="matchInfo"></div>
+
+<input type="text" placeholder="Name" id="name">
+<input type="number" placeholder="No. of Tickets" id="tickets">
+
+<select id="payment">
+  <option>UPI</option>
+  <option>Card</option>
+  <option>Net Banking</option>
+</select>
+
+<button onclick="pay()">Pay Now</button>
+
+</div>
+
+<script>
+
+const matchRaw = localStorage.getItem("selectedMatch");
+
+let matchDisplay = "";
+
+try {
+  const matchObj = JSON.parse(matchRaw);
+
+  if (matchObj && matchObj.title) {
+    matchDisplay = `
+      Selected Match: <b>${matchObj.title}</b><br>
+      Date: <b>${matchObj.date}</b>
+    `;
+  } else {
+    matchDisplay = "Selected Match: <b>" + matchRaw + "</b>";
+  }
+
+} catch (e) {
+  // live match (string case)
+  matchDisplay = "Selected Match: <b>" + matchRaw + "</b>";
+}
+
+document.getElementById("matchInfo").innerHTML = matchDisplay;
+function pay(){
+  const name = document.getElementById("name").value;
+  const tickets = document.getElementById("tickets").value;
+
+  if(!name || !tickets){
+    alert("Fill all fields");
+    return;
+  }
+
+  try {
+    alert("Payment Successful 🎉 for " + localStorage.getItem("selectedMatch"));
+
+    localStorage.setItem("matchBooking", JSON.stringify({
+      match: localStorage.getItem("selectedMatch"),
+      name,
+      tickets
+    }));
+
+    // ✅ FORCE REDIRECT (most reliable way)
+    setTimeout(() => {
+      window.location.href = "./matchticket.html";
+    }, 300);
+
+  } catch (e) {
+    console.log(e);
+    alert("Something went wrong!");
+  }
+}
+</script>
+
+</body>
+
+</html>

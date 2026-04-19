@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Panel</title>
+
+<style>
+body{
+  background:#111;
+  color:white;
+  font-family:Arial;
+  padding:20px;
+}
+h2{
+  text-align:center;
+  color:#ff4d6d;
+}
+.card{
+  background:#222;
+  padding:15px;
+  margin:10px 0;
+  border-radius:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+input{
+  display:block;
+  width:300px;
+  padding:8px;
+  margin:5px 0;
+}
+button{
+  padding:8px 12px;
+  background:#ff4d6d;
+  color:white;
+  border:none;
+  cursor:pointer;
+  margin-top:10px;
+  border-radius:6px;
+}
+.delete-btn{
+  background:red;
+  margin-left:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🎬 Admin Dashboard</h2>
+
+<!-- BOOKINGS -->
+<div id="bookings"></div>
+
+<hr>
+
+<!-- ADD MOVIE -->
+
+<!-- ADD MOVIE (NEW UI) -->
+<h3 style="margin-top:20px;color:#ff4d6d;">➕ Add New Movie</h3>
+
+<div style="
+  background:#1c1c1c;
+  padding:20px;
+  border-radius:15px;
+  max-width:400px;
+  box-shadow:0 0 20px rgba(255,77,109,0.2);
+">
+
+  <input id="title" placeholder="🎬 Movie Title" style="width:100%;padding:10px;margin:8px 0;border:none;border-radius:8px;outline:none;">
+  
+  <input id="genre" placeholder="🎭 Genre" style="width:100%;padding:10px;margin:8px 0;border:none;border-radius:8px;outline:none;">
+  
+  <input id="image" placeholder="🖼 Image URL" style="width:100%;padding:10px;margin:8px 0;border:none;border-radius:8px;outline:none;">
+  
+  <input id="price" placeholder="💰 Price" style="width:100%;padding:10px;margin:8px 0;border:none;border-radius:8px;outline:none;">
+
+  <button onclick="addMovie()" style="
+    width:100%;
+    padding:12px;
+    background:linear-gradient(135deg,#ff4d6d,#ff1f4d);
+    border:none;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    border-radius:10px;
+    cursor:pointer;
+    margin-top:10px;
+  ">
+    Add Movie
+  </button>
+
+</div>
+
+<hr>
+
+<!-- MOVIES LIST -->
+<h3>All Movies (Delete)</h3>
+<div id="movies"></div>
+
+<script>
+
+/* ================= BOOKINGS ================= */
+fetch("http://localhost:5000/api/bookings")
+.then(res => res.json())
+.then(data => {
+
+  const container = document.getElementById("bookings");
+  container.innerHTML = "<h3>📊 Bookings</h3>";
+
+  data.forEach(b => {
+    container.innerHTML += `
+      <div class="card">
+        <div>
+          <h3>🎬 ${b.movie}</h3>
+          <p>👤 ${b.username}</p>
+          <p>📅 ${b.date} ⏰ ${b.time}</p>
+          <p>💺 ${b.seats.join(", ")}</p>
+          <p>💰 ₹${b.amount}</p>
+        </div>
+      </div>
+    `;
+  });
+
+});
+
+
+/* ================= ADD MOVIE ================= */
+function addMovie() {
+
+  const movie = {
+    title: document.getElementById("title").value,
+    genre: document.getElementById("genre").value,
+    image: document.getElementById("image").value,
+    price: Number(document.getElementById("price").value)
+  };
+
+  fetch("http://localhost:5000/api/movies", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(movie)
+  })
+  .then(res => res.json())
+  .then(() => {
+    alert("Movie Added ✅");
+    location.reload();
+  });
+}
+
+
+/* ================= LOAD MOVIES ================= */
+function loadMovies() {
+  fetch("http://localhost:5000/api/movies")
+  .then(res => res.json())
+  .then(data => {
+
+    const container = document.getElementById("movies");
+    container.innerHTML = "";
+
+    data.forEach(m => {
+
+      const div = document.createElement("div");
+      div.className = "card";
+
+      div.innerHTML = `
+        <div>
+          <h3>🎬 ${m.title}</h3>
+          <p>${m.genre}</p>
+        </div>
+
+        <button class="delete-btn" onclick="deleteMovie('${m._id}')">
+          DELETE
+        </button>
+      `;
+
+      container.appendChild(div);
+    });
+
+  });
+}
+
+
+/* ================= DELETE MOVIE ================= */
+function deleteMovie(id) {
+  if(!confirm("Delete this movie?")) return;
+
+  fetch("http://localhost:5000/api/movies/" + id, {
+    method: "DELETE"
+  })
+  .then(res => res.json())
+  .then(() => {
+    alert("Deleted ✅");
+    loadMovies();
+  });
+}
+
+loadMovies();
+
+</script>
+
+</body>
+</html>

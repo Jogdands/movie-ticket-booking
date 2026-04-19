@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart Cinema Booking</title>
+
+<style>
+body{
+  font-family:Arial;
+  background:#0b0b0b;
+  color:white;
+  text-align:center;
+}
+
+h2{ margin-top:10px; }
+
+.controls{
+  margin:10px;
+}
+
+input,select{
+  padding:8px;
+  margin:5px;
+  border-radius:6px;
+  border:none;
+}
+
+.screen{
+  width:60%;
+  margin:20px auto;
+  padding:12px;
+  background:linear-gradient(to right,#fff,#bbb,#fff);
+  border-radius:40px;
+  color:black;
+  font-weight:bold;
+  box-shadow:0 0 15px white;
+}
+
+.row{
+  margin:6px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* 🎯 SEAT STYLE */
+.seat{
+  width:26px;
+  height:26px;
+  margin:3px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:10px;
+}
+
+/* 🎯 AISLE GAP */
+.group-gap{
+  margin-right:18px;
+}
+
+/* Types */
+.vip{ background:#8e44ad; }
+.premium{ background:#3498db; }
+.regular{ background:#444; }
+
+.booked{ background:red !important; }
+.selected{ background:#2ecc71 !important; }
+.recommended{ background:gold !important; }
+
+.legend{
+  margin:10px;
+}
+
+.legend span{
+  display:inline-block;
+  margin:5px;
+  padding:5px 10px;
+  border-radius:5px;
+}
+
+button{
+  padding:8px 12px;
+  margin:5px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.ai{ background:orange; }
+.book{ background:limegreen; }
+
+.summary{
+  margin-top:15px;
+  font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🎬 Smart Cinema Booking</h2>
+
+<div class="controls">
+<input id="name" placeholder="Your Name">
+<select id="count">
+<option value="1">1 Seat</option>
+<option value="2" selected>2 Seats</option>
+<option value="3">3 Seats</option>
+<option value="4">4 Seats</option>
+</select>
+
+<select id="type">
+<option value="regular">Regular</option>
+<option value="premium">Premium</option>
+<option value="vip">VIP</option>
+</select>
+</div>
+
+<div class="screen">SCREEN</div>
+
+<div class="legend">
+<span style="background:#8e44ad">VIP</span>
+<span style="background:#3498db">Premium</span>
+<span style="background:#444">Regular</span>
+<span style="background:gold;color:black">AI</span>
+<span style="background:#2ecc71">Selected</span>
+<span style="background:red">Booked</span>
+</div>
+
+<button class="ai" onclick="autoFind()">🎯 AI Suggest</button>
+<button onclick="nextSuggestion()">🔄 Next</button>
+<button class="book" onclick="book()">Book</button>
+
+<div id="box"></div>
+
+<div class="summary" id="summary"></div>
+
+<script>
+
+const rows=10;
+const cols=12;
+
+let movie = localStorage.getItem("movie");
+let booked=JSON.parse(localStorage.getItem("booked"))||[];
+let selected=[];
+let suggestions=[];
+let index=0;
+
+// 🎬 DRAW SEATS (WITH AISLE GAP)
+function draw(){
+  let box=document.getElementById("box");
+  box.innerHTML="";
+
+  for(let r=0;r<rows;r++){
+    let row=document.createElement("div");
+    row.className="row";
+
+    for(let c=0;c<cols;c++){
+
+      let id=r+"-"+c;
+      let seat=document.createElement("div");
+      seat.className="seat";
+
+      let label = String.fromCharCode(65+r)+(c+1);
+      seat.innerText = label;
+
+      // seat type
+      if(r<2) seat.classList.add("vip");
+      else if(r<5) seat.classList.add("premium");
+      else seat.classList.add("regular");
+
+      if(booked.includes(id)) seat.classList.add("booked");
+
+      seat.onclick=()=>select(r,c);
+
+      /* 🎯 CREATE AISLE EFFECT */
+      if(c===2 || c===5 || c===8){
+        seat.classList.add("group-gap");
+      }
+
+      row.appendChild(seat);
+    }
+
+    box.appendChild(row);
+  }
+}
+
+// 👤 SELECT
+function select(r,c){
+
+  let count=parseInt(document.getElementById("count").value);
+  let temp=[];
+
+  for(let i=0;i<count;i++){
+    let id=r+"-"+(c+i);
+
+    if(c+i>=cols || booked.includes(id)){
+      alert("Not available");
+      return;
+    }
+
+    temp.push(id);
+  }
+
+  selected=temp;
+  update("selected");
+}
+
+// 🤖 AI
+
+function autoFind(){
+
+  suggestions = [];
+  index = 0;
+
+  let count = parseInt(document.getElementById("count").value);
+  let type = document.getElementById("type").value;
+
+  let centerCol = cols / 2;
+  let centerRow = rows / 2;
+
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<=cols-count;c++){
+
+      let group = [];
+      let ok = true;
+
+      let seatScore = 0;
+
+      for(let i=0;i<count;i++){
+        let id = r + "-" + (c+i);
+
+        if(booked.includes(id)) ok = false;
+
+        // 🎯 seat type logic
+        let rowType =
+          (r < 2) ? "vip" :
+          (r < 5) ? "premium" :
+          "regular";
+
+        if(rowType !== type) ok = false;
+
+        group.push(id);
+
+        // 🎯 center distance scoring
+        seatScore += (10 - Math.abs(centerCol - (c+i)));
+      }
+
+      if(ok){
+
+        // 🎯 row preference (closer to screen middle rows)
+        let rowScore = 10 - Math.abs(centerRow - r);
+
+        let finalScore = rowScore + seatScore;
+
+        suggestions.push({group, score: finalScore});
+      }
+    }
+  }
+
+  suggestions.sort((a,b)=>b.score - a.score);
+
+  if(suggestions.length > 0){
+    selected = suggestions[0].group;
+    update("recommended");
+  } else {
+    alert("No good seats available");
+  }
+}
+// 🔄 NEXT
+function nextSuggestion(){
+
+  if(suggestions.length === 0){
+    alert("Run AI Suggest first");
+    return;
+  }
+
+  index++;
+  if(index >= suggestions.length) index = 0;
+
+  selected = suggestions[index].group;
+  update("recommended");
+}
+
+// 🎨 UPDATE UI
+function update(type){
+
+  document.querySelectorAll(".seat").forEach(s=>{
+    s.classList.remove("selected","recommended");
+  });
+
+  selected.forEach(id=>{
+    let [r,c]=id.split("-");
+    let row=document.querySelectorAll(".row")[r];
+    row.children[c].classList.add(type);
+  });
+
+  showSummary();
+}
+
+// 📋 SUMMARY
+function showSummary(){
+
+  let name=document.getElementById("name").value || "Guest";
+
+  let seats = selected.map(id=>{
+    let [r,c]=id.split("-");
+    return String.fromCharCode(65+r)+(Number(c)+1);
+  });
+
+  document.getElementById("summary").innerHTML =
+  `👤 ${name} | 💺 ${seats.join(", ")}`;
+}
+
+// 💳 BOOK
+function book(){
+
+  if(selected.length===0){
+    alert("Select seats first");
+    return;
+  }
+
+  localStorage.setItem("selectedSeats",JSON.stringify(selected));
+  window.location.href="payment.html";
+}
+
+draw();
+let selectedSeats = [];
+
+function selectSeat(seat){
+  selectedSeats.push(seat);
+  localStorage.setItem("selectedSeats", JSON.stringify(selectedSeats));
+}
+localStorage.setItem("selectedSeats", JSON.stringify(selected));
+localStorage.setItem("seatType", document.getElementById("type").value);
+</script>
+
+</body>
+</html>

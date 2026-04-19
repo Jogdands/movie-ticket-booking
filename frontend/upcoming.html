@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upcoming</title>
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at center, #2E003E 0%, #000000 80%);
+  color: white;
+}
+
+header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: rgba(0,0,0,0.9); }
+header a { color: white; text-decoration: none; font-weight: bold; }
+
+section { padding: 40px 30px; }
+
+section h2 {
+  margin-bottom: 20px;
+  font-size: 28px;
+  border-left: 5px solid #ff4d6d;
+  padding-left: 10px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: rgba(0,0,0,0.6);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  text-align: center;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 0 20px rgba(255,77,109,0.7);
+}
+
+.card img { width: 100%; height: 250px; object-fit: cover; }
+
+.card p { padding: 10px; }
+
+footer { text-align: center; padding: 20px; background: #111; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html">⬅ Back to Home</a>
+</header>
+
+<section>
+  <h2>Upcoming</h2>
+  <div class="grid">
+    <div class="card" onclick="location.href='upmovies.html'">
+      <img src="https://i.pinimg.com/1200x/e6/a7/c4/e6a7c47206541c733222bedd3b0f4582.jpg" alt="">
+      <p>Upcoming Movies</p>
+    </div>
+    <div class="card" onclick="location.href='upmatches.html'">
+      <img src="https://aimages.willow.tv/livehltsthumbnail/10278_hlts.jpg" alt="">
+      <p>Upcoming Matches</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © 2026 Movie Booking. All rights reserved.
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Match Ticket</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#000,#1e1e1e);
+  color:white;
+  text-align:center;
+}
+
+.ticket{
+  margin-top:80px;
+  background:rgba(255,255,255,0.1);
+  width:300px;
+  margin-left:auto;
+  margin-right:auto;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 0 15px #ff4d6d;
+}
+
+h2{ color:#ff4d6d; }
+</style>
+</head>
+
+<body>
+
+<div class="ticket">
+  <h2>🎟 MATCH TICKET</h2>
+
+  <h3 id="title"></h3>
+  <p id="date"></p>
+
+  <p>Status: ✅ Confirmed</p>
+
+  <p>Enjoy the Match!</p>
+</div>
+
+<script>
+const match = JSON.parse(localStorage.getItem("selectedMatch"));
+
+document.getElementById("title").innerText = match.title;
+document.getElementById("date").innerText = "Date: " + match.date;
+</script>
+
+</body>
+</html>

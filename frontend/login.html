@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+<style>
+body {
+  font-family: Arial;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg,#6a11cb,#2575fc);
+  margin: 0;
+  color: white;
+}
+.container {
+  background: rgba(0,0,0,0.6);
+  padding: 30px;
+  border-radius: 10px;
+  width: 300px;
+  text-align: center;
+}
+input { width: 90%; padding: 10px; margin: 10px 0; border-radius:5px; border:none; }
+button { padding:10px 20px; background:#ff4b2b; border:none; border-radius:5px; cursor:pointer; color:white; font-weight:bold;}
+a{color:#00ffd5; text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Login</h2>
+  <input type="text" id="loginUsername" placeholder="Username"><br>
+  <input type="password" id="loginPassword" placeholder="Password"><br>
+  <button id="loginBtn">Login</button>
+  <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
+</div>
+
+<script>
+document.getElementById('loginBtn').addEventListener('click', function(){
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if(!storedUser){
+        alert("No user found! Please sign up first.");
+        return;
+    }
+
+    if(username === storedUser.username && password === storedUser.password){
+        localStorage.setItem('loggedIn', 'true');
+        window.location.href = "index.html";
+    } else {
+        alert("Invalid username or password!");
+    }
+});
+</script>
+</body>
+</html>

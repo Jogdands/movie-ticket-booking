@@ -1,0 +1,11 @@
+{
+  "movies": [
+    {
+      "id": 1775583543069,
+      "name": "DHURANDAR 2",
+      "image": "https://i.pinimg.com/736x/40/94/93/409493677fc9ea97ca7acff1bdcb9098.jpg",
+      "type": "Thriller"
+    }
+  ],
+  "bookings": []
+}
