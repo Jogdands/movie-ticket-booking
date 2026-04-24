@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Date & Time</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background: radial-gradient(circle at top,#1a001f,#000);
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.card{
+  width:400px;
+  padding:25px;
+  border-radius:18px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  border:1px solid rgba(255,255,255,0.1);
+  box-shadow:0 10px 40px rgba(0,0,0,0.6);
+}
+
+h2{
+  color:#ff4d6d;
+  margin-top:0;
+}
+
+label{
+  display:block;
+  margin-top:15px;
+  font-size:13px;
+  color:#ccc;
+}
+
+input,select{
+  width:95%;
+  padding:12px;
+  margin-top:6px;
+  border-radius:10px;
+  border:none;
+  background:#2a2a3d;
+  color:white;
+  outline:none;
+}
+
+button{
+  width:100%;
+  margin-top:20px;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(90deg,#ff2e55,#ff5f7e);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  transform:scale(1.03);
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>🎬 Select Show</h2>
+
+  <label>Select Date</label>
+  <input type="date" id="date">
+
+  <label>Select Time</label>
+  <select id="time">
+    <option value="">Choose Time</option>
+    <option>10:00 AM</option>
+    <option>01:00 PM</option>
+    <option>04:00 PM</option>
+    <option>07:00 PM</option>
+    <option>10:00 PM</option>
+  </select>
+
+  <button onclick="next()">Continue</button>
+</div>
+
+<script>
+
+// Set today's date as minimum (FIX)
+let today = new Date().toISOString().split('T')[0];
+document.getElementById("date").setAttribute("min", today);
+
+// Check movie from booking object
+let booking = JSON.parse(localStorage.getItem("booking"));
+
+if(!booking || !booking.movie){
+  alert("Movie not selected!");
+  window.location.href = "new.html";
+}
+
+// NEXT STEP
+function next(){
+
+  let date = document.getElementById("date").value;
+  let time = document.getElementById("time").value;
+
+  if(!date || !time){
+    alert("Select date & time ❗");
+    return;
+  }
+
+  let booking = JSON.parse(localStorage.getItem("booking"));
+
+  if(!booking || !booking.movie){
+    alert("Movie not selected! Go back and select again");
+    window.location.href = "new.html";
+    return;
+  }
+
+  booking.date = date;
+  booking.time = time;
+
+  localStorage.setItem("booking", JSON.stringify(booking));
+
+  window.location.href = "seat.html";
+}
+</script>
+
+</body>
+</html>
